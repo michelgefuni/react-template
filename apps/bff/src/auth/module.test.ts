@@ -92,6 +92,37 @@ describe('auth', () => {
     expect(callback.headers.get('location')).toBe('/');
   });
 
+  it('clears a secure host cookie on logout', async () => {
+    const { app, env } = buildApp(
+      environment({ SESSION_COOKIE_SECURE: 'true' }),
+    );
+    const login = await app.request('/api/auth/login?returnTo=/home');
+    const callback = await app.request(
+      '/api/auth/callback?code=abc&state=state',
+      {
+        headers: { cookie: cookiePair(login, env.transactionCookieName) },
+      },
+    );
+    const logout = await app.request(
+      'http://localhost:5173/api/auth/logout',
+      {
+        method: 'POST',
+        headers: {
+          'x-csrf-token': '1',
+          origin: 'http://localhost:5173',
+          cookie: cookiePair(callback, env.sessionCookieName),
+        },
+      },
+    );
+
+    expect(logout.status).toBe(200);
+    const cleared = logout.headers
+      .getSetCookie()
+      .find(cookie => cookie.startsWith(`${env.sessionCookieName}=`));
+    expect(cleared).toContain('Secure');
+    expect(cleared).toContain('Max-Age=0');
+  });
+
   it('rejects logout without the csrf header and returns the provider logout url', async () => {
     const { app } = buildApp();
     const rejected = await app.request('/api/auth/logout', { method: 'POST' });

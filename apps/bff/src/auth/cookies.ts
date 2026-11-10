@@ -38,7 +38,12 @@ export function writeCookie(
 }
 
 export function clearCookie(c: Context, env: Env, name: string): void {
-  deleteCookie(c, name, { path: '/' });
+  deleteCookie(c, name, {
+    httpOnly: true,
+    secure: env.sessionCookieSecure,
+    sameSite: 'Lax',
+    path: '/',
+  });
 }
 
 export const transactionMaxAgeSeconds = transactionTtlSeconds;
