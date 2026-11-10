@@ -1,0 +1,49 @@
+{
+  "name": "@react-template/web",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsr generate && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsr generate && tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "routes:generate": "tsr generate"
+  },
+  "dependencies": {
+    "@react-template/bff": "workspace:*",
+    "@react-template/shared": "workspace:*",
+    "@tanstack/react-query": "catalog:",
+    "@tanstack/react-router": "catalog:",
+    "clsx": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "tailwind-merge": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@playwright/test": "catalog:",
+    "@react-template/eslint-config": "workspace:*",
+    "@react-template/tsconfig": "workspace:*",
+    "@rolldown/plugin-babel": "catalog:",
+    "@tailwindcss/vite": "catalog:",
+    "@tanstack/router-cli": "catalog:",
+    "@tanstack/router-plugin": "catalog:",
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "babel-plugin-react-compiler": "catalog:",
+    "eslint": "catalog:",
+    "jsdom": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}
