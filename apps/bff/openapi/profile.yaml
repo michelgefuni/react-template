@@ -1,0 +1,26 @@
+openapi: 3.0.3
+# @sample-file
+info:
+  title: Profile sample
+  version: 1.0.0
+paths:
+  /me:
+    get:
+      operationId: getProfile
+      responses:
+        '200':
+          description: Profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+components:
+  schemas:
+    Profile:
+      type: object
+      required: [id, displayName]
+      properties:
+        id:
+          type: string
+        displayName:
+          type: string
