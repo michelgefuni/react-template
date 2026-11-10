@@ -1,0 +1,96 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          version: 11.21.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: node scripts/check-branch.mjs
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+      - run: pnpm audit --audit-level=high
+      # @feature-bff-start
+      - run: pnpm gen:upstreams && git diff --exit-code -- apps/bff/src/clients/generated
+      # @feature-bff-end
+
+  # @feature-auth-start
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          version: 11.21.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+        working-directory: apps/web
+      - run: docker compose --profile auth up -d redis keycloak
+      - name: wait for the identity provider
+        run: |
+          for i in $(seq 1 60); do
+            curl -fsS http://localhost:8080/realms/app/.well-known/openid-configuration && exit 0
+            sleep 5
+          done
+          exit 1
+      - name: start the app
+        run: |
+          cp apps/bff/.env.example apps/bff/.env
+          cp apps/web/.env.example apps/web/.env
+          pnpm --filter @react-template/bff dev &
+          for i in $(seq 1 40); do
+            curl -fsS http://localhost:3001/api/health && break
+            sleep 3
+          done
+          pnpm --filter @react-template/web dev &
+          for i in $(seq 1 30); do
+            curl -fsS http://localhost:5173 && exit 0
+            sleep 2
+          done
+          exit 1
+        env:
+          OIDC_DISCOVERY_ATTEMPTS: '20'
+          OIDC_DISCOVERY_DELAY_MS: '3000'
+      - run: pnpm --filter @react-template/web test:e2e
+        env:
+          E2E_USERNAME: dev
+          E2E_PASSWORD: change-me
+  # @feature-auth-end
+
+  # @sample-start
+  bootstrap:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        preset: [web, bff, bff-auth]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          version: 11.21.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: node scripts/create-project.mjs --name Acme --scope acme --preset ${{ matrix.preset }} --yes
+  # @sample-end
