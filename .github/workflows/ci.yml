@@ -55,6 +55,7 @@ jobs:
         run: |
           cp apps/bff/.env.example apps/bff/.env
           cp apps/web/.env.example apps/web/.env
+          pnpm --filter @react-template/bff build
           pnpm --filter @react-template/bff dev &
           for i in $(seq 1 40); do
             curl -fsS http://localhost:3001/api/health && break

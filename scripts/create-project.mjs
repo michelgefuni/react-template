@@ -78,8 +78,8 @@ if (features.bff)
 await writeEnv('apps/web/.env.example', 'apps/web/.env', secrets);
 if (features.auth) await writeRealmSecret(secrets.oidcClient);
 await editPackages(scope, features);
-await generateRoutes();
-run('pnpm', ['install']);
+run('pnpm', ['install', '--no-frozen-lockfile']);
+generateRoutes();
 run('pnpm', ['lint']);
 run('pnpm', ['typecheck']);
 run('pnpm', ['test']);

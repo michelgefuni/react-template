@@ -1,5 +1,12 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const webDev = [
+  // @feature-bff-start
+  'pnpm --filter @react-template/bff build',
+  // @feature-bff-end
+  'pnpm --filter @react-template/web dev',
+].join(' && ');
+
 export default defineConfig({
   testDir: './e2e',
   use: {
@@ -18,7 +25,7 @@ export default defineConfig({
         },
         // @feature-bff-end
         {
-          command: 'pnpm --filter @react-template/web dev',
+          command: webDev,
           url: 'http://localhost:5173',
           reuseExistingServer: true,
           cwd: '../..',
