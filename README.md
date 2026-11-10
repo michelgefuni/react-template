@@ -1,46 +1,105 @@
-# Getting Started with Create React App
+# React Template
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Starter React. O bootstrap escolhe o quanto de servidor entra no projeto.
 
-## Available Scripts
+[//]: # (@sample-start)
 
-In the project directory, you can run:
+| Preset | O que fica |
+| --- | --- |
+| `web` | SPA |
+| `bff` | SPA e BFF, sem login |
+| `bff-auth` | SPA, BFF e login OpenID Connect |
 
-### `npm start`
+O repositório, antes do bootstrap, sobe o preset `bff-auth` para quem quer experimentar o stack completo.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+[//]: # (@sample-end)
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## O que entra
 
-### `npm test`
+- `apps/web`: Vite, React 19, TanStack Router e TanStack Query, Tailwind.
+- `packages/shared`: contratos e erros.
+[//]: # (@feature-bff-start)
+- `apps/bff`: Hono e proxy tipado para upstreams.
+[//]: # (@feature-bff-end)
+[//]: # (@feature-auth-start)
+- Login OIDC com sessão em cookie HttpOnly. Redis e Keycloak no desenvolvimento com Docker.
+[//]: # (@feature-auth-end)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+SSR, biblioteca de componentes, i18n e Storybook ficam de fora.
 
-### `npm run build`
+## Requisitos
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Node 26 (`.nvmrc`). Node 24.12 ou mais novo roda as ferramentas localmente. As imagens Docker usam Node 26. pnpm 11 vem do `packageManager`.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Primeiro uso
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+[//]: # (@sample-start)
 
-### `npm run eject`
+```sh
+pnpm install
+pnpm create-project
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+O script pergunta nome, escopo e preset. Apaga as amostras marcadas com `@sample`, remove o que o preset não usa, gera os segredos e se remove.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Para experimentar este repositório antes do bootstrap, copie os exemplos. Não repita a cópia depois do bootstrap. Ela apaga os segredos gerados.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```sh
+cp apps/web/.env.example apps/web/.env
+cp apps/bff/.env.example apps/bff/.env
+pnpm dev
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+[//]: # (@sample-end)
 
-## Learn More
+```sh
+pnpm install
+pnpm dev
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+O front sobe em `http://localhost:5173`.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+[//]: # (@feature-bff-start)
+O BFF sobe em `http://localhost:3001`. `pnpm dev` compila o client do BFF antes do front.
+
+`docker compose up` sobe só o front. O BFF entra com `--profile bff` ou `--profile auth`.
+
+`pnpm gen:upstreams` gera os tipos OpenAPI. `pnpm --filter @react-template/web test:e2e` roda o Playwright.
+[//]: # (@feature-bff-end)
+
+[//]: # (@feature-auth-start)
+O login local usa Keycloak, sem Redis. A sessão fica em memória.
+
+```sh
+docker compose --profile auth up -d keycloak
+```
+
+O usuário de exemplo é `dev` / `change-me`. Esses valores são só de desenvolvimento. O boot em `NODE_ENV=production` recusa o store em memória, cookie sem `Secure` e os segredos de exemplo.
+
+O stack completo, com nginx na porta 8088, sobe com `docker compose --profile auth up`.
+[//]: # (@feature-auth-end)
+
+## Scripts
+
+| Script | O que faz |
+| --- | --- |
+| `pnpm dev` | Sobe o que o preset deixou |
+| `pnpm lint` | ESLint |
+| `pnpm typecheck` | Checagem de tipos |
+| `pnpm test` | Vitest |
+| `pnpm build` | Build dos apps |
+
+## Onde ler mais
+
+- [Contribuir](CONTRIBUTING.md)
+- [Segurança](SECURITY.md)
+- [Decisões](docs/adr/README.md)
+- [Adicionar uma feature](docs/guides/add-feature.md)
+[//]: # (@feature-bff-start)
+- [Adicionar um upstream](docs/guides/add-upstream.md)
+[//]: # (@feature-bff-end)
+[//]: # (@feature-auth-start)
+- [Adicionar uma rota protegida](docs/guides/add-protected-route.md)
+[//]: # (@feature-auth-end)
+
+Variáveis: `apps/web/.env.example`. Nada sensível vai em variável `VITE_`.

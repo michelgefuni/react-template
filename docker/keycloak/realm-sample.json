@@ -1,0 +1,41 @@
+{
+  "realm": "app",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "clients": [
+    {
+      "clientId": "web-bff",
+      "name": "Web BFF",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "dev-only-client-secret-change-me-32b",
+      "redirectUris": [
+        "http://localhost:5173/api/auth/callback",
+        "http://localhost:8088/api/auth/callback"
+      ],
+      "webOrigins": ["http://localhost:5173", "http://localhost:8088"],
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "frontchannelLogout": true
+    }
+  ],
+  "users": [
+    {
+      "username": "dev",
+      "email": "dev@example.com",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Dev",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "change-me",
+          "temporary": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+dist
+coverage
+pnpm-lock.yaml
+routeTree.gen.ts
+apps/bff/src/clients/generated
+playwright-report

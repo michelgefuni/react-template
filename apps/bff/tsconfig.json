@@ -1,0 +1,7 @@
+{
+  "extends": "@react-template/tsconfig/node.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": ["src", "vitest.config.ts", "tsdown.config.ts"]
+}
