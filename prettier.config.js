@@ -1,5 +1,7 @@
-module.exports = {
+/** @type {import('prettier').Config} */
+export default {
   singleQuote: true,
   trailingComma: 'all',
-  allowParens: 'avoid',
+  arrowParens: 'avoid',
+  plugins: ['prettier-plugin-tailwindcss'],
 };
